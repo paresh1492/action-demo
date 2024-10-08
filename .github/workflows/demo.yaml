@@ -1,22 +1,31 @@
-name: CI
+name: NGINX Webpage CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
+    # Step 1: Checkout the code
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '14'
+    # Step 2: Build the Docker image for NGINX
+    - name: Build Docker image
+      run: |
+        docker build -t my-nginx-app ./nginx
 
-    - name: Install dependencies
-      run: npm install
+    # Step 3: Run NGINX container to serve the webpage
+    - name: Run NGINX container
+      run: |
+        docker run -d -p 8080:80 my-nginx-app
 
-    - name: Run tests
-      run: npm test
+    # Step 4: Curl the page to confirm it's running
+    - name: Test NGINX container
+      run: |
+        sleep 5  # Wait for the container to start
+        curl http://localhost:8080
